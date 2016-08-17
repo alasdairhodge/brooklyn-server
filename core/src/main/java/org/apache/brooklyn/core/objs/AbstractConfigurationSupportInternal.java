@@ -29,6 +29,7 @@ import org.apache.brooklyn.api.mgmt.ExecutionContext;
 import org.apache.brooklyn.api.mgmt.Task;
 import org.apache.brooklyn.config.ConfigKey;
 import org.apache.brooklyn.config.ConfigKey.HasConfigKey;
+import org.apache.brooklyn.core.config.ConfigKeys;
 import org.apache.brooklyn.core.config.MapConfigKey;
 import org.apache.brooklyn.core.config.StructuredConfigKey;
 import org.apache.brooklyn.core.config.SubElementConfigKey;
@@ -45,6 +46,23 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractConfigurationSupportInternal implements BrooklynObjectInternal.ConfigurationSupportInternal {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractConfigurationSupportInternal.class);
+
+    protected ConfigKey<?> getDeclaredConfigKey(String name) {
+        return null;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T get(String keyName, Class<T> type) {
+        ConfigKey<?> key = getDeclaredConfigKey(keyName);
+        if (key == null) {
+            key = ConfigKeys.newConfigKey(type, keyName);
+        } else if (!type.isAssignableFrom(key.getType())) {
+            throw new IllegalArgumentException("Config " + keyName + " of " + this + " is of type " +
+                    key.getType() + ", but asked for incompatible " + type);
+        }
+        return (T) get(key);
+    }
 
     @Override
     public <T> T get(HasConfigKey<T> key) {

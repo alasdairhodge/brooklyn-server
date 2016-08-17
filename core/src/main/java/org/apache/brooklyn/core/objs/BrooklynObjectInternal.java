@@ -47,6 +47,9 @@ public interface BrooklynObjectInternal extends BrooklynObject, Rebindable {
     @Beta
     public interface ConfigurationSupportInternal extends Configurable.ConfigurationSupport {
 
+        @Beta
+        <T> T get(String keyName, Class<T> type);
+
         /**
          * Returns a read-only view of all the config key/value pairs on this entity, backed by a string-based map,
          * including config names that did not match anything on this entity.
